@@ -1,7 +1,6 @@
-package org.innovatrics.storage
+package org.innovatrics.storage.dto
 
 class UploadResponse(
     val fileName: String,
-    val presignedUrl: String
-) {
+    val presignedUrl: String) {
 }

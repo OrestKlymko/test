@@ -1,4 +1,6 @@
 package org.innovatrics.storage.dto
 
-class DownloadRequest {
+data  class DownloadRequest(
+    val fileName: String
+) {
 }

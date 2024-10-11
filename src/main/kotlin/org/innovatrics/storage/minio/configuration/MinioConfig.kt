@@ -1,4 +1,4 @@
-package org.innovatrics.storage.configuration
+package org.innovatrics.storage.minio.configuration
 
 import io.minio.MinioClient
 import org.springframework.beans.factory.annotation.Value

@@ -1,4 +1,4 @@
-package org.innovatrics.storage
+package org.innovatrics.storage.dto
 
 data class UploadRequest(
     val fileName: String,
