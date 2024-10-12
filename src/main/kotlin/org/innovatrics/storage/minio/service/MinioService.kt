@@ -1,9 +1,12 @@
 package org.innovatrics.storage.minio.service
 
+import io.minio.BucketExistsArgs
 import io.minio.GetPresignedObjectUrlArgs
+import io.minio.MakeBucketArgs
 import io.minio.MinioClient
-import io.minio.PutObjectArgs
+import jakarta.annotation.PostConstruct
 import org.innovatrics.storage.minio.dto.MinioPreSignedUrl
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.UUID
@@ -12,45 +15,40 @@ import java.util.UUID
 @Service
 class MinioService(
     private val minioClient: MinioClient,
+) {
 
-    ) {
-    private val expiry = 600 // 10 minutes
+    @Value("\${minio.expiry}")
+    private var expiry: Int = 600
 
-
-    fun formingPresignedUrl(minioPreSignedUrl: MinioPreSignedUrl): String {
-        // Генеруємо унікальне ім'я файлу
-        val objectName = "${UUID.randomUUID()}_${LocalDateTime.now()}_${minioPreSignedUrl.fileName}"
-
-        // Створюємо мапу для додаткових заголовків
-        val extraHeaders = mutableMapOf<String, String>()
-
-        // Додаємо токен до заголовків, якщо він існує
-        minioPreSignedUrl.token?.let {
-            extraHeaders["X-Amz-Token"] = it
-            println(it)
+    @PostConstruct
+    private fun createBucketIfNotExists() {
+        val buckets = listOf("attachments", "fingerprints", "faces", "videos")
+        buckets.forEach {
+            val found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(it).build())
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(it).build())
+            }
         }
 
+    }
+
+    fun formingPresignedUrl(minioPreSignedUrl: MinioPreSignedUrl): String {
+        val objectName = "${UUID.randomUUID()}_${LocalDateTime.now()}_${minioPreSignedUrl.fileName}"
+
+        val extraHeaders = mutableMapOf<String, String>()
+        minioPreSignedUrl.token?.let {
+            extraHeaders["X-Amz-Meta-Jwt-Token"] = it
+        }
 
         return minioClient.getPresignedObjectUrl(
             GetPresignedObjectUrlArgs.builder()
                 .method(minioPreSignedUrl.method)
                 .bucket(minioPreSignedUrl.bucketName)
                 .`object`(objectName)
-                .extraQueryParams(extraHeaders)  // Включаємо заголовки в підписаний запит
+                .extraQueryParams(extraHeaders)
                 .expiry(expiry)
                 .build()
         )
     }
 
-
-    fun saveObject(bucketName: String, objectName: String, data: ByteArray) {
-        val inputStream = data.inputStream()
-        minioClient.putObject(
-            PutObjectArgs.builder()
-                .bucket(bucketName)
-                .`object`(objectName)
-                .stream(inputStream, data.size.toLong(), -1)
-                .build()
-        )
-    }
 }

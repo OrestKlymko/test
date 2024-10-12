@@ -1,5 +1,6 @@
 package org.innovatrics.storage.minio.configuration
 
+
 import io.minio.MinioClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -23,4 +24,6 @@ class MinioConfig {
             .credentials(accessKey, secretKey)
             .build()
     }
+
+
 }
