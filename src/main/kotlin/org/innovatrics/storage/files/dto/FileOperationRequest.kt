@@ -10,8 +10,8 @@ data class FileOperationRequest(
     @NotBlank(message = "File name cannot be empty")
     val fileName: String,
 
-    @Schema(description = "Type of the file. Allowed values are 'attachments', 'faces', 'fingerprints', 'videos'",
-        allowableValues = ["attachments", "faces", "fingerprints", "videos"], required = true)
+    @Schema(description = "Type of the file. Allowed values are 'attachments', 'faces', 'fingerprints', 'videos','temp'",
+        allowableValues = ["attachments", "faces", "fingerprints", "videos","temp"], required = true)
     @NotBlank(message = "File type cannot be empty")
     @Pattern(regexp = "attachments|faces|fingerprints|videos", message = "File type must be one of: attachments, faces, fingerprints, videos")
     val fileType: String
