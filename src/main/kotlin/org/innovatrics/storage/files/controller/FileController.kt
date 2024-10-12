@@ -65,10 +65,11 @@ class FileController(
     @GetMapping("/{fileType}")
     fun getAllFiles(
         @PathVariable
-        @Schema(description = "Type of file", allowableValues = ["attachments", "faces", "fingerprints", "videos"])
+        @Schema(description = "Type of file", allowableValues = ["attachments", "faces", "fingerprints", "videos", "temp"])
         fileType: String
     ): ResponseEntity<*> =
         ResponseEntity.ok(fileService.getAllFiles(fileType))
+
 
 
     @ExceptionHandler(Exception::class)

@@ -49,6 +49,7 @@ mc event add myminio/attachments arn:minio:sqs::primary:amqp --event put --suffi
 mc event add myminio/faces arn:minio:sqs::primary:amqp --event put --queue=faces --routing_key minio.faces
 mc event add myminio/fingerprints arn:minio:sqs::primary:amqp --event put --queue=fingerprints --routing_key minio.fingerprints
 mc event add myminio/videos arn:minio:sqs::primary:amqp --event put --queue=videos --routing_key minio.videos
+mc event add myminio/temp arn:minio:sqs::amqp --event delete --suffix .*
 
 
 mc admin service restart myminio
