@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import java.time.LocalDateTime
 
-@Service("attachments")
+@Service("temp")
 class TemporaryFilesService(
     private val temporaryFileRepository: TemporaryFileRepository,
     jwtService: JwtService,
