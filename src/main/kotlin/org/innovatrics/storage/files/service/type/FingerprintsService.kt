@@ -51,12 +51,10 @@ class FingerprintsService(
     override fun receiveEventUploadFromMinio(message: String) {
         try {
             val eventResponse = receiveEventResponseData(message)
-
             fingerprintsRepository.findByFileName(eventResponse.fileName)?.let {
                 logger.error("File with name ${eventResponse.fileName} already exists")
                 return;
             }
-
             Fingerprint(
                 fileName = eventResponse.fileName,
                 createdAt = eventResponse.createdAt,

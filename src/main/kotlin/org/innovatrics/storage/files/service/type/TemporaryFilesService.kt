@@ -1,6 +1,8 @@
 package org.innovatrics.storage.files.service.type
 
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.tomcat.websocket.AuthenticationException
 import org.innovatrics.storage.files.dto.FileOperationResponse
 import org.innovatrics.storage.minio.service.MinioService
@@ -17,6 +19,8 @@ import java.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 @Service("temp")
@@ -24,6 +28,7 @@ class TemporaryFilesService(
     private val temporaryFileRepository: TemporaryFileRepository,
     jwtService: JwtService,
     minioService: MinioService,
+    private val mapper: ObjectMapper
 ) : FileOperationService(minioService, jwtService, "temp") {
 
 
@@ -59,7 +64,7 @@ class TemporaryFilesService(
         try {
             val eventResponse = receiveEventResponseData(message)
             temporaryFileRepository.findByFileName(eventResponse.fileName)?.let {
-                logger.error("File with name ${eventResponse.fileName} already exists")
+                logger.error("File with name $it already exists")
                 return;
             }
             TemporaryFile(
@@ -75,10 +80,14 @@ class TemporaryFilesService(
 
     @RabbitListener(queues = ["temp-delete"])
     fun deleteTemporaryFile(message: String) {
+
         try {
-            val eventResponse = receiveEventResponseData(message)
-            temporaryFileRepository.findByFileName(eventResponse.fileName)?.let {
-                temporaryFileRepository.deleteById(it.id()!!)
+            val rootNode: JsonNode = mapper.readTree(message)
+            rootNode.at("/Records/0/s3/object/key")?.asText().let { filename ->
+                val decodedFileName = URLDecoder.decode(filename, StandardCharsets.UTF_8.toString())
+                temporaryFileRepository.findByFileName(decodedFileName)?.let {
+                    temporaryFileRepository.deleteById(it.id()!!)
+                }
             }
 
         } catch (e: Exception) {
