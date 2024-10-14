@@ -90,13 +90,7 @@ abstract class FileOperationService(
 
     fun getPreSignedDownloadUrl(fileName: String): PreSignedResponse {
         val preSignedUrl = minioService
-            .formingPresignedUrl(
-                MinioPreSignedUrl(
-                    fileName = fileName,
-                    bucketName = bucketName,
-                    method = Method.GET
-                )
-            )
+            .getDowloadsPresignedUrl(bucketName, fileName)
         return PreSignedResponse(fileName, preSignedUrl)
     }
 

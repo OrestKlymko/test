@@ -2,6 +2,7 @@ package org.innovatrics.storage.minio.service
 
 import io.minio.*
 import io.minio.errors.MinioException
+import io.minio.http.Method
 import io.minio.messages.*
 import jakarta.annotation.PostConstruct
 import org.innovatrics.storage.minio.dto.MinioPreSignedUrl
@@ -85,6 +86,17 @@ class MinioService(
                 .bucket(minioPreSignedUrl.bucketName)
                 .`object`(objectName)
                 .extraQueryParams(extraHeaders)
+                .expiry(expiry)
+                .build()
+        )
+    }
+
+    fun getDowloadsPresignedUrl(bucketName: String, objectName: String): String {
+        return minioClient.getPresignedObjectUrl(
+            GetPresignedObjectUrlArgs.builder()
+                .method(Method.GET)
+                .bucket(bucketName)
+                .`object`(objectName)
                 .expiry(expiry)
                 .build()
         )
